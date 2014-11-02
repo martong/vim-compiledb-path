@@ -9,7 +9,7 @@ path to your compile_commands.json file as an argument. E.g.:
 ```
 :CompileDbPath build/compile_commands.json
 ```
-You can reset to the default path with :set path& .
+You can reset to the default path with `:set path&` .
 
 ##Installation
 Use [vundle](https://github.com/gmarik/Vundle.vim) or any other vim plugin solutions.
