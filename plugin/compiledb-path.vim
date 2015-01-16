@@ -1,4 +1,4 @@
-function! AddIncludePathsOfCompileDbToVimPath(compileCommandsPath)
+function! AddIncludePathsOfCompileDbToVimPath(compileCommandsPath, failIfNotFound)
 python << endscript
 import vim
 import os
@@ -22,35 +22,41 @@ def debugLog(msg):
   print msg
   sys.stdout.flush()
 
-def searchForIncludePaths(compileCommandsPath):
+def searchForIncludePaths(compileCommandsPath, failIfNotFound):
   result = []
-  jsonData = open(compileCommandsPath)
-  data = json.load(jsonData)
-  for translationUnit in data:
-    switches = translationUnit["command"].split()
-    for currentSwitch, nextSwitch in pairwise(switches):
-      matchObj = re.match( r'(-I|-isystem)(.*)', currentSwitch)
-      includeDir = ""
-      if currentSwitch == "-I" or currentSwitch == "-isystem":
-        includeDir = nextSwitch
-      elif matchObj:
-        includeDir = matchObj.group(2)
-      includeDir = removeClosingSlash(includeDir)
-      includeDir = os.path.normpath(includeDir)
-      result.append(includeDir)
-      #debugLog (includeDir)
-  jsonData.close()
-  result = set(result)
+  try:
+    jsonData = open(compileCommandsPath)
+    data = json.load(jsonData)
+    for translationUnit in data:
+      switches = translationUnit["command"].split()
+      for currentSwitch, nextSwitch in pairwise(switches):
+        matchObj = re.match( r'(-I|-isystem)(.*)', currentSwitch)
+        includeDir = ""
+        if currentSwitch == "-I" or currentSwitch == "-isystem":
+          includeDir = nextSwitch
+        elif matchObj:
+          includeDir = matchObj.group(2)
+        includeDir = removeClosingSlash(includeDir)
+        includeDir = os.path.normpath(includeDir)
+        result.append(includeDir)
+        #debugLog (includeDir)
+    jsonData.close()
+    result = set(result)
+  except IOError:
+    if failIfNotFound:
+      raise
   debugLog(result)
   return result
 
 compileCommandsPath = vim.eval("a:compileCommandsPath")
-includePaths = searchForIncludePaths(compileCommandsPath)
+failIfNotFound = vim.eval("a:failIfNotFound") == 'true';
+includePaths = searchForIncludePaths(compileCommandsPath, failIfNotFound)
 for p in includePaths:
 	vim.command("set path+=%s" % p)
 
 endscript
 endfunction
 
-command! -nargs=1 -complete=file CompileDbPath call AddIncludePathsOfCompileDbToVimPath(<q-args>)
+command! -nargs=1 -complete=file CompileDbPath call AddIncludePathsOfCompileDbToVimPath(<q-args>, 'true')
+command! -nargs=1 -complete=file CompileDbPathIfExists call AddIncludePathsOfCompileDbToVimPath(<q-args>, 'false')
 
