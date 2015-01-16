@@ -8,9 +8,19 @@ Once you have the include directories in your path, than you can use e.g. `gf` t
 
 To add the include directories to your path, just call :CompileDbPath with the
 path to your compile_commands.json file as an argument. E.g.:
+
 ```
 :CompileDbPath build/compile_commands.json
 ```
+
+you can also add directories like this:
+
+```
+:CompileDbPathIfExists build/compile_commands.json
+```
+
+The latter will fail silently if the passed file doesn't exist.
+
 You can reset to the default path with `:set path&` .
 
 ##Installation

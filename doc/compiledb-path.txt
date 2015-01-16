@@ -13,3 +13,7 @@ To add the include directories to your path, just call :CompileDbPath with the
 path to your compile_commands.json file as an argument. You can reset to the
 default path with :set path& .
 
+                                                *CompileDbPathIfExists*
+
+Same as CompileDbPath but will fail silently if the passed file doesn't exist.
+
