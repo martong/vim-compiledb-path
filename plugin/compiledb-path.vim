@@ -37,6 +37,8 @@ def searchForIncludePaths(compileCommandsPath, failIfNotFound):
         elif matchObj:
           includeDir = matchObj.group(2)
         includeDir = removeClosingSlash(includeDir)
+        if not includeDir.startswith('/'):                                      
+          includeDir = translationUnit["directory"] + "/" + includeDir  
         includeDir = os.path.normpath(includeDir)
         result.append(includeDir)
         #debugLog (includeDir)
